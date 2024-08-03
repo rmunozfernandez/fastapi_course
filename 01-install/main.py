@@ -39,3 +39,10 @@ def message():
 @app.get('/movies', tags=['Movies'])
 def get_movies():
     return movies
+
+@app.get('/movies/{id}', tags=['Movies'])
+def get_movie(id: int):
+    for movie in movies:
+        if movie["id"] == id:
+            return movie
+    return {"error": "Movie not found"}
