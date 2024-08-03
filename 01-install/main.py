@@ -20,7 +20,7 @@ movies = [
         "overview": "The aging patriarch",
         "year": 1972,
         "rating": 9.2,
-        "category": "Crime"
+        "category": "Crimen"
     },
     {
         "id": 3,
@@ -28,7 +28,7 @@ movies = [
         "overview": "When the menace",
         "year": 2008,
         "rating": 9.0,
-        "category": "Action"
+        "category": "Acción"
     },
 ]
 
@@ -46,3 +46,7 @@ def get_movie(id: int):
         if movie["id"] == id:
             return movie
     return {"error": "Movie not found"}
+
+@app.get('/movies/', tags=['Movies'])
+def get_movies_by_category(category: str):
+    return [movie for movie in movies if movie["category"] == category]
