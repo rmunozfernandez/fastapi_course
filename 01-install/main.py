@@ -1,9 +1,19 @@
-from fastapi import FastAPI, Body
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Body # type: ignore
+from fastapi.responses import HTMLResponse # type: ignore
+from pydantic import BaseModel # type: ignore
+from typing import Optional
 
 app = FastAPI()
 app.title = "FastAPI - Docs"
 app.version = "0.0.1"
+
+class Movie(BaseModel):
+    id: Optional[int] = None
+    title: str
+    overview: str
+    year: int
+    rating: float
+    category: str
 
 movies = [
     {
@@ -42,43 +52,36 @@ def get_movies():
 
 @app.get('/movies/{id}', tags=['Movies'])
 def get_movie(id: int):
-    for movie in movies:
-        if movie["id"] == id:
-            return movie
+    for mov in movies:
+        if mov["id"] == id:
+            return mov
     return {"error": "Movie not found"}
 
 @app.get('/movies/', tags=['Movies'])
 def get_movies_by_category(category: str):
-    return [movie for movie in movies if movie["category"] == category]
+    return [mov for mov in movies if mov["category"] == category]
 
 @app.post('/movies', tags=['Movies'])
-def create_movie(id: int = Body(), title: str = Body(), overview: str = Body(), year: int = Body(), rating: float = Body(), category: str = Body()):
-    movies.append({
-        "id": id,
-        "title": title,
-        "overview": overview,
-        "year": year,
-        "rating": rating,
-        "category": category
-    })
+def create_movie(movie: Movie):
+    movies.append(movie)
     return movies
 
 @app.put('/movies/{id}', tags=['Movies'])
-def update_movie(id: int, title: str = Body(), overview: str = Body(), year: int = Body(), rating: float = Body(), category: str = Body()):
-    for movie in movies:
-        if movie["id"] == id:
-            movie["title"] = title
-            movie["overview"] = overview
-            movie["year"] = year
-            movie["rating"] = rating
-            movie["category"] = category
-            return movie
+def update_movie(id: int, movie: Movie):
+    for mov in movies:
+        if mov["id"] == id:
+            mov["title"] = movie.title
+            mov["overview"] = movie.overview
+            mov["year"] = movie.year
+            mov["rating"] = movie.rating
+            mov["category"] = movie.category
+            return mov
     return {"error": "Movie not found"}
 
 @app.delete('/movies/{id}', tags=['Movies'])
 def delete_movie(id: int):
-    for movie in movies:
-        if movie["id"] == id:
-            movies.remove(movie)
+    for mov in movies:
+        if mov["id"] == id:
+            movies.remove(mov)
             return {"message": "Movie deleted"}
     return {"error": "Movie not found"}
