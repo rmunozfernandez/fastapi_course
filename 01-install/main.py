@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, Path, Query
 from fastapi.responses import HTMLResponse 
 from pydantic import BaseModel, Field
 from typing import Optional
@@ -64,14 +64,14 @@ def get_movies():
     return movies
 
 @app.get('/movies/{id}', tags=['Movies'])
-def get_movie(id: int):
+def get_movie(id: int = Path(ge=1, le=200)):
     for mov in movies:
         if mov["id"] == id:
             return mov
     return {"error": "Movie not found"}
 
 @app.get('/movies/', tags=['Movies'])
-def get_movies_by_category(category: str):
+def get_movies_by_category(category: str = Query(min_length=5, max_length=15)):
     return [mov for mov in movies if mov["category"] == category]
 
 @app.post('/movies', tags=['Movies'])
