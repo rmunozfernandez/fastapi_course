@@ -68,17 +68,17 @@ def get_movie(id: int = Path(ge=1, le=200)) -> Movie:
     for mov in movies:
         if mov["id"] == id:
             return JSONResponse(content=mov)
-    return JSONResponse(content={"error": "Movie not found"})
+    return JSONResponse(status_code=404, content={"error": "Movie not found"})
 
 @app.get('/movies/', tags=['Movies'], response_model=list[Movie])
 def get_movies_by_category(category: str = Query(min_length=5, max_length=15)) -> list[Movie]:
     data = [mov for mov in movies if mov["category"] == category]
     return JSONResponse(content=data)
 
-@app.post('/movies', tags=['Movies'], response_model=dict)
+@app.post('/movies', tags=['Movies'], response_model=dict, status_code=201)
 def create_movie(movie: Movie) -> dict:
     movies.append(movie)
-    return JSONResponse(content={"message": "Movie created"})
+    return JSONResponse(status_code=201, content={"message": "Movie created"})
 
 @app.put('/movies/{id}', tags=['Movies'], response_model=dict)
 def update_movie(id: int, movie: Movie) -> dict:
@@ -90,7 +90,7 @@ def update_movie(id: int, movie: Movie) -> dict:
             mov["rating"] = movie.rating
             mov["category"] = movie.category
             return JSONResponse(content={"message": "Movie updated"})
-    return JSONResponse(content={"error": "Movie not found"})
+    return JSONResponse(status_code=404, content={"error": "Movie not found"})
 
 @app.delete('/movies/{id}', tags=['Movies'], response_model=dict)
 def delete_movie(id: int) -> dict:
@@ -98,4 +98,4 @@ def delete_movie(id: int) -> dict:
         if mov["id"] == id:
             movies.remove(mov)
             return JSONResponse(content={"message": "Movie deleted"})
-    return JSONResponse(content={"error": "Movie not found"})
+    return JSONResponse(status_code=404,content={"error": "Movie not found"})
