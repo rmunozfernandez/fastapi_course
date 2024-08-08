@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Body, Path, Query
-from fastapi.responses import HTMLResponse 
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 from typing import Optional
 
@@ -59,28 +59,29 @@ movies = [
 def message():
     return HTMLResponse('<h1>Welcome to FastAPI</h1>')
 
-@app.get('/movies', tags=['Movies'])
-def get_movies():
-    return movies
+@app.get('/movies', tags=['Movies'], response_model=list[Movie])
+def get_movies() -> list[Movie]:
+    return JSONResponse(content=movies)
 
-@app.get('/movies/{id}', tags=['Movies'])
-def get_movie(id: int = Path(ge=1, le=200)):
+@app.get('/movies/{id}', tags=['Movies'], response_model=Movie)
+def get_movie(id: int = Path(ge=1, le=200)) -> Movie:
     for mov in movies:
         if mov["id"] == id:
-            return mov
-    return {"error": "Movie not found"}
+            return JSONResponse(content=mov)
+    return JSONResponse(content={"error": "Movie not found"})
 
-@app.get('/movies/', tags=['Movies'])
-def get_movies_by_category(category: str = Query(min_length=5, max_length=15)):
-    return [mov for mov in movies if mov["category"] == category]
+@app.get('/movies/', tags=['Movies'], response_model=list[Movie])
+def get_movies_by_category(category: str = Query(min_length=5, max_length=15)) -> list[Movie]:
+    data = [mov for mov in movies if mov["category"] == category]
+    return JSONResponse(content=data)
 
-@app.post('/movies', tags=['Movies'])
-def create_movie(movie: Movie):
+@app.post('/movies', tags=['Movies'], response_model=dict)
+def create_movie(movie: Movie) -> dict:
     movies.append(movie)
-    return movies
+    return JSONResponse(content={"message": "Movie created"})
 
-@app.put('/movies/{id}', tags=['Movies'])
-def update_movie(id: int, movie: Movie):
+@app.put('/movies/{id}', tags=['Movies'], response_model=dict)
+def update_movie(id: int, movie: Movie) -> dict:
     for mov in movies:
         if mov["id"] == id:
             mov["title"] = movie.title
@@ -88,13 +89,13 @@ def update_movie(id: int, movie: Movie):
             mov["year"] = movie.year
             mov["rating"] = movie.rating
             mov["category"] = movie.category
-            return mov
-    return {"error": "Movie not found"}
+            return JSONResponse(content={"message": "Movie updated"})
+    return JSONResponse(content={"error": "Movie not found"})
 
-@app.delete('/movies/{id}', tags=['Movies'])
-def delete_movie(id: int):
+@app.delete('/movies/{id}', tags=['Movies'], response_model=dict)
+def delete_movie(id: int) -> dict:
     for mov in movies:
         if mov["id"] == id:
             movies.remove(mov)
-            return {"message": "Movie deleted"}
-    return {"error": "Movie not found"}
+            return JSONResponse(content={"message": "Movie deleted"})
+    return JSONResponse(content={"error": "Movie not found"})
