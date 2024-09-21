@@ -2,10 +2,15 @@ from fastapi import FastAPI, Body # type: ignore
 from fastapi.responses import HTMLResponse # type: ignore
 from pydantic import BaseModel # type: ignore
 from typing import Optional
+from jwt_manager import create_token
 
 app = FastAPI()
 app.title = "FastAPI - Docs"
 app.version = "0.0.1"
+
+class User(BaseModel):
+    email: str
+    password: str
 
 class Movie(BaseModel):
     id: Optional[int] = None
@@ -45,6 +50,10 @@ movies = [
 @app.get('/', tags=['Home'])
 def message():
     return HTMLResponse('<h1>Welcome to FastAPI</h1>')
+
+@app.post('/login', tags=['Auth'])
+def login(user: User):
+    return user
 
 @app.get('/movies', tags=['Movies'])
 def get_movies():
