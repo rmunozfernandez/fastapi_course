@@ -64,6 +64,12 @@ movies = [
 def message():
     return HTMLResponse('<h1>Welcome to FastAPI</h1>')
 
+@app.post('/login', tags=['Auth'], response_model=dict)
+def login(user: User):
+    if user.email == 'admin@gmail.com' and user.password == 'admin':
+        token: str = create_token(user.model_dump())
+    return JSONResponse(status_code=200, content=token)
+
 @app.get('/movies', tags=['Movies'], response_model=list[Movie])
 def get_movies() -> list[Movie]:
     return JSONResponse(content=movies)
